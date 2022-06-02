@@ -1,14 +1,19 @@
+import GetConfigOption from 'src/config/domain/GetConfigOption.type';
 import EnvUndefinedException from 'src/config/exceptions/EnvUndefinedException';
 
 export default class ConfigService {
-  static getConfig(key: string, required = false) {
-    const value = process.env[key];
-
-    if (value === undefined && required) {
-      throw new EnvUndefinedException(key);
+  static getConfig(name: string, options?: GetConfigOption) {
+    if (!options) {
+      options = { name };
     }
 
-    return value;
+    const value = process.env[options.name];
+
+    if (value === undefined && options.required) {
+      throw new EnvUndefinedException(options.name);
+    }
+
+    return value || options.defaultValue;
   }
 
   static setConfig(key: string, value: any) {
