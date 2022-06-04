@@ -1,4 +1,5 @@
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Request as IRequest } from 'express';
 import AuthService from 'src/modules/auth/auth.service';
 import AuthUser from 'src/modules/auth/auth.user';
 import { UserRegistrationDto } from 'src/modules/auth/domain/user.registration.dto';
@@ -10,8 +11,8 @@ export default class AuthController {
 
   @Post('/login')
   @UseGuards(LocalGuard)
-  login(@Request() req): AuthUser {
-    return req.user;
+  login(@Request() req: IRequest): AuthUser {
+    return req.user as AuthUser;
   }
 
   @Post('/register')
