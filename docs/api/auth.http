@@ -1,0 +1,17 @@
+POST http://localhost:3003/auth/register HTTP/1.1
+content-type: application/json
+
+{
+  "fullName": "John Doe",
+  "email": "john.doe@nest.starter",
+  "phone": "01944668716",
+  "password": "changeme"
+}
+
+POST http://localhost:3003/auth/login HTTP/1.1
+content-type: application/json
+
+{
+  "username": "john.doe@nest.starter",
+  "password": "changeme"
+}
