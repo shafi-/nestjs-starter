@@ -6,4 +6,8 @@ import { User, UserDocument } from 'src/modules/user/user.schema';
 @Injectable()
 export default class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  async findUser(query: Partial<User>): Promise<User> {
+    return this.userModel.findOne(query);
+  }
 }
