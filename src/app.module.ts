@@ -1,4 +1,4 @@
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import DbModule from 'src/modules/db/db.module';
 import { AppController } from 'src/app.controller';
@@ -12,7 +12,6 @@ import AuthModule from 'src/modules/auth/auth.module';
       isGlobal: true,
     }),
     DbModule,
-    Logger,
     UserModule,
     AuthModule,
   ],
