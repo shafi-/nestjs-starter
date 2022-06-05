@@ -19,3 +19,15 @@ export class User {
 export type UserDocument = User & Document;
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.set('toJSON', {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  transform: (doc, ret, opt = {}) => {
+    ret.id = ret._id;
+
+    delete ret.password;
+    delete ret.__v;
+
+    return ret;
+  },
+});
