@@ -11,12 +11,16 @@ import { UserDocument } from 'src/modules/user/user.schema';
 import { randomUUID } from 'crypto';
 import PassResetRequestService from 'src/modules/auth/pass-reset.service';
 import passResetDto from 'src/modules/auth/domain/pass-reset.dto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export default class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly prRequestService: PassResetRequestService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<AuthUser> {
@@ -26,7 +30,11 @@ export default class AuthService {
       return null;
     }
 
-    return this.sanitizeUser(user);
+    return user;
+  }
+
+  validateJwtPayload(payload: AuthUser): Promise<UserDocument> {
+    return this.userService.findById(payload.id);
   }
 
   async register(userInfo: UserRegistrationDto): Promise<AuthUser> {
@@ -61,10 +69,10 @@ export default class AuthService {
 
     const user = await this.userService.register(userInfo);
 
-    return this.sanitizeUser(user);
+    return this.getSanitizedUserWithJwt(user);
   }
 
-  async sendChallenge(username: string) {
+  async sendChallenge(username: string): Promise<boolean> {
     const user = await this.userService.findByEmailOrPhone(username);
 
     if (!user) {
@@ -94,15 +102,22 @@ export default class AuthService {
     return true;
   }
 
-  private sanitizeUser(user: UserDocument): AuthUser {
-    const userInfo = {
-      id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-      phone: user.phone,
-    } as AuthUser;
+  async getSanitizedUserWithJwt(user: UserDocument): Promise<AuthUser> {
+    const jwt = await this.generateJWT(user);
 
-    userInfo.jwt = JSON.stringify(userInfo);
+    return this.sanitizeUser(user, jwt);
+  }
+
+  private async generateJWT(user: UserDocument): Promise<string> {
+    return this.jwtService.signAsync(AuthUser.of(user), {
+      expiresIn: this.configService.getOrThrow('JWT_VALIDITY_IN_SECOND'),
+      secret: this.configService.getOrThrow('JWT_SECRET'),
+    });
+  }
+
+  sanitizeUser(user: UserDocument, jwt: string): AuthUser {
+    const userInfo = AuthUser.of(user);
+    userInfo.jwt = jwt;
 
     return userInfo;
   }
