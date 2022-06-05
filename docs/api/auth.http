@@ -1,0 +1,21 @@
+POST http://localhost:3003/auth/register HTTP/1.1
+content-type: application/json
+
+{
+  "fullName": "John Doe",
+  "email": "john.doe@nest.starter",
+  "phone": "01944668716",
+  "password": "changeme"
+}
+
+POST http://localhost:3003/auth/login HTTP/1.1
+content-type: application/json
+
+{
+  "username": "john.doe@nest.starter",
+  "password": "changeme"
+}
+
+GET http://localhost:3003/auth/me HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyOWMxNTE4NDQ5ZjQxYjg4OGI0NjRhOCIsImZ1bGxOYW1lIjoiSm9obiBEb2UiLCJlbWFpbCI6ImpvaG4uZG9lQG5lc3Quc3RhcnRlciIsInBob25lIjoiMDE5NDQ2Njg3MTYiLCJpYXQiOjE2NTQ0MjQ4OTUsImV4cCI6MTY1NDUxMTI5NX0.6e2LAtUWIW7vx8VICcdWYrSkp0xJTX8i6kYIrv917DA

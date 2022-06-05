@@ -11,7 +11,7 @@ async function bootstrap() {
 
   await app.listen(configService.get(Constants.Env.APP_PORT));
 
-  const logger = await app.resolve<Logger>(Logger);
+  const logger = new Logger('NestApplication');
 
   logger.log(
     `Nest Application is running at http://localhost:${configService.get(
