@@ -1,6 +1,7 @@
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { Request as IRequest } from 'express';
 import AuthService from 'src/modules/auth/auth.service';
+import AuthUser from 'src/modules/auth/domain/auth.user';
 import PassResetDto from 'src/modules/auth/domain/pass-reset.dto';
 import { UserRegistrationDto } from 'src/modules/auth/domain/user.registration.dto';
 import LocalGuard from 'src/modules/auth/guards/local.guard';

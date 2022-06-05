@@ -5,7 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import UserService from 'src/modules/user/user.service';
-import AuthUser from 'src/modules/auth/auth.user';
+import AuthUser from 'src/modules/auth/domain/auth.user';
 import { UserRegistrationDto } from 'src/modules/auth/domain/user.registration.dto';
 import { UserDocument } from 'src/modules/user/user.schema';
 import { randomUUID } from 'crypto';
@@ -20,16 +20,7 @@ export default class AuthService {
   ) {}
 
   async validateUser(username: string, pass: string): Promise<AuthUser> {
-    const user = await this.userService.findUser({
-      $or: [
-        {
-          email: username,
-        },
-        {
-          phone: username,
-        },
-      ],
-    });
+    const user = await this.userService.findByEmailOrPhone(username);
 
     if (!user || !bcrypt.compareSync(pass, user.password)) {
       return null;
@@ -103,6 +94,7 @@ export default class AuthService {
     return true;
   }
 
+  private sanitizeUser(user: UserDocument): AuthUser {
     const userInfo = {
       id: user.id,
       fullName: user.fullName,

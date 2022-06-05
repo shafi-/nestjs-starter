@@ -6,10 +6,10 @@ export class User {
   @Prop({ required: true })
   fullName: string;
 
-  @Prop({ required: false })
+  @Prop({ required: false, unique: true, index: true })
   email: string;
 
-  @Prop({ length: 15, required: true })
+  @Prop({ length: 15, required: true, unique: true, index: true })
   phone: string;
 
   @Prop({ length: 256, required: false })
