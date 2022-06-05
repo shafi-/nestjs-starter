@@ -1,13 +1,23 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import UserService from 'src/modules/user/user.service';
 import AuthUser from 'src/modules/auth/auth.user';
 import { UserRegistrationDto } from 'src/modules/auth/domain/user.registration.dto';
 import { UserDocument } from 'src/modules/user/user.schema';
+import { randomUUID } from 'crypto';
+import PassResetRequestService from 'src/modules/auth/pass-reset.service';
+import passResetDto from 'src/modules/auth/domain/pass-reset.dto';
 
 @Injectable()
 export default class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly prRequestService: PassResetRequestService,
+  ) {}
 
   async validateUser(username: string, pass: string): Promise<AuthUser> {
     const user = await this.userService.findUser({
@@ -63,7 +73,36 @@ export default class AuthService {
     return this.sanitizeUser(user);
   }
 
-  sanitizeUser(user: UserDocument): AuthUser {
+  async sendChallenge(username: string) {
+    const user = await this.userService.findByEmailOrPhone(username);
+
+    if (!user) {
+      throw new NotFoundException(null, 'User not found');
+    }
+
+    const token = randomUUID({}).substring(0, 6);
+
+    await this.prRequestService.save(user.id, token);
+
+    await this.prRequestService.sendToken(user, token);
+
+    return true;
+  }
+
+  async resetPassword(resetReq: passResetDto): Promise<boolean> {
+    const user = await this.userService.findByEmailOrPhone(resetReq.username);
+
+    const resetRequest = await this.prRequestService.findLatestByUser(user.id);
+
+    if (!resetRequest) throw new NotFoundException();
+
+    if (resetReq.token === resetRequest.token) {
+      await this.userService.resetPassword(user, resetReq.newPass);
+    }
+
+    return true;
+  }
+
     const userInfo = {
       id: user.id,
       fullName: user.fullName,

@@ -12,7 +12,24 @@ export default class UserService {
     return this.userModel.findOne(query);
   }
 
+  async findByEmailOrPhone(username: string): Promise<UserDocument> {
+    return this.userModel.findOne({
+      $or: [{ email: username }, { phone: username }],
+    });
+  }
+
   register(userInfo: UserRegistrationDto): Promise<UserDocument> {
     return this.userModel.create(userInfo);
+  }
+
+  async resetPassword(user: UserDocument, newPass: string) {
+    return this.userModel
+      .updateOne(
+        { _id: user.id },
+        {
+          password: newPass,
+        },
+      )
+      .exec();
   }
 }
