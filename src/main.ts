@@ -1,9 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import Constants from 'src/constants';
 import { AppModule } from './app.module';
+import * as bodyParser from 'body-parser';
+import SwaggerService from 'src/modules/swagger/SwaggerService';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,24 +13,20 @@ async function bootstrap() {
   const configService = await app.resolve<ConfigService>(ConfigService);
 
   const APP_PORT = configService.get(Constants.Env.APP_PORT);
-  const isSwaggerEnabled = configService.get<boolean>('SWAGGER_ENABLE', false);
 
-  if (isSwaggerEnabled) {
-    const config = new DocumentBuilder()
-      .setTitle(configService.get('SWAGGER_TITLE', 'API docs'))
-      .setDescription(configService.get('SWAGGER_DESC', 'The API description'))
-      .setVersion(configService.get('SWAGGER_VERSION', '1.0'))
-      .addTag(configService.get('SWAGGER_TAG', 'nestjs-starter'))
-      .build();
+  new SwaggerService(configService, logger).setup(app);
 
-    const document = SwaggerModule.createDocument(app, config);
-    const swaggerPrefix = configService.getOrThrow('SWAGGER_PREFIX');
-    SwaggerModule.setup(swaggerPrefix, app, document);
+  const payloadLimitSize = '1mb';
 
-    logger.log(
-      `Swagger doc is running at http://localhost:${APP_PORT}${swaggerPrefix}`,
-    );
-  }
+  app.use(bodyParser.json({ limit: payloadLimitSize || '1mb' }));
+
+  app.use(
+    bodyParser.urlencoded({
+      limit: payloadLimitSize || '1mb',
+      parameterLimit: 10000000,
+      extended: true,
+    }),
+  );
 
   await app.listen(APP_PORT);
 
