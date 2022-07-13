@@ -5,7 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import UserService from 'src/modules/user/user.service';
-import AuthUser from 'src/modules/auth/domain/auth.user';
+import AuthUser from 'src/modules/auth/domain/auth.user.dto';
 import { UserRegistrationDto } from 'src/modules/auth/domain/user.registration.dto';
 import { UserDocument } from 'src/modules/user/user.schema';
 import { randomUUID } from 'crypto';
