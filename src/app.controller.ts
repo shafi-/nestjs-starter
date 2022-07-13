@@ -1,6 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
+import SwaggerOptions from 'src/modules/swagger/SwaggerOptions';
 import { AppService } from './app.service';
 
+@SwaggerOptions({})
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
