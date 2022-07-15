@@ -23,8 +23,7 @@ export default class SwaggerService {
             this.logger.log(
                 `Swagger doc is running at http://localhost:${this.config.appPort}${this.config.apiPrefix}`,
             );
-            // this.addSwaggerDecoratorInControllers(app);
-            swaggerService.addBasicAuthentication(app);
+            // swaggerService.addBasicAuthentication(app);
             const document = swaggerService.createDocument(app);
             SwaggerModule.setup(swaggerService.swaggerEndpoint, app, document);
         }
@@ -36,7 +35,7 @@ export default class SwaggerService {
             .setTitle(this.config.serviceName)
             .setDescription(this.config.description)
             .setVersion(this.config.version)
-            .addApiKey({ type: apiKeyType, name: authorizationHeader, in: header }, authorizationHeader)
+            .addBearerAuth()
             .build();
 
         return SwaggerModule.createDocument(app, options);

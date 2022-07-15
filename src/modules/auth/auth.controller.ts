@@ -6,7 +6,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { Request as IRequest } from 'express';
 import AuthService from 'src/modules/auth/auth.service';
 import AuthUser from 'src/modules/auth/domain/auth.user.dto';
@@ -14,18 +14,21 @@ import PassResetDto from 'src/modules/auth/domain/pass-reset.dto';
 import { UserRegistrationDto } from 'src/modules/auth/domain/user.registration.dto';
 import JwtGuard from 'src/modules/auth/guards/jwt.guard';
 import LocalGuard from 'src/modules/auth/guards/local.guard';
-import SwaggerOptions from 'src/modules/swagger/SwaggerOptions';
-import Public from 'src/modules/auth/decorators/Public';
 import ForgetPassDto from 'src/modules/auth/domain/forget-pass.dto';
-import LoginDto from 'src/modules/auth/domain/login.dto';
+import LoginPayloadDto from 'src/modules/auth/domain/login-payload.dto';
 
-@SwaggerOptions()
+@ApiTags('Auth')
 @Controller('/auth')
 export default class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiBody({ type: LoginDto })
-  @Public()
+  @ApiBody({
+    type: LoginPayloadDto,
+    examples: {
+      loginByPhone: { summary: 'Phone number Login', value: { username: '01234567899', password: 'changeme' } },
+      loginByEmail: { summary: 'Email Login', value: { username: 'john.doe@nest.starter', password: 'changeme' } }
+    }
+  })
   @Post('/login')
   @UseGuards(LocalGuard)
   login(@Request() req: IRequest): Promise<AuthUser> {
@@ -49,6 +52,7 @@ export default class AuthController {
     return this.authService.resetPassword(resetReq);
   }
 
+  @ApiBearerAuth()
   @Get('/me')
   @UseGuards(JwtGuard)
   me(@Request() req: IRequest): Promise<AuthUser> {
