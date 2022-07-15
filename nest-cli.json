@@ -1,4 +1,16 @@
 {
-  "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+  "monorepo": true,
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "webpack": true,
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "classValidatorShim": true,
+          "introspectComments": true
+        }
+      }
+    ]
+  }
 }

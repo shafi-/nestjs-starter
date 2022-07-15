@@ -4,7 +4,10 @@
   "sourceRoot": "apps/main/src",
   "compilerOptions": {
     "webpack": true,
-    "tsConfigPath": "apps/main/tsconfig.app.json"
+    "tsConfigPath": "apps/main/tsconfig.app.json",
+    "plugins": [
+      "@nestjs/swagger"
+    ]
   },
   "projects": {
     "main": {
